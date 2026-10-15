@@ -134,23 +134,21 @@ class LocalStore extends ChangeNotifier {
   bool get canDownload => !locked && (profile.admin || profile.download);
   bool allowsSource(String source) =>
       !locked &&
-      SourceSite.isAvailable(source) &&
-      profile.allows(source) &&
-      (_gateOff || _sourcesUnlocked || SourceSite.isPrimary(source));
+      !locked && SourceSite.isAvailable(source) && profile.allows(source);
   List<SourceSite> get sources => SourceSite.visibleValues(
-    unlocked: _gateOff || _sourcesUnlocked,
+    unlocked: true,
   ).where((site) => allowsSource(site.id)).toList();
 
-  /// 默认隐藏的站源是否已解锁。解锁状态只在本次运行内有效，重启后恢复隐藏。
-  bool get sourcesUnlocked => _gateOff || _sourcesUnlocked;
+  /// 站源密码锁已移除：全部站源默认可见。
+  bool get sourcesUnlocked => true;
 
-  /// 是否已启用站源密码锁。
-  bool get sourceGateEnabled => _gateEnabled;
+  /// 站源密码锁已移除：始终未启用。
+  bool get sourceGateEnabled => false;
 
   bool get sourceGateConfigured => _gateSalt.isNotEmpty && _gateHash.isNotEmpty;
 
-  /// 当前是否处于「不使用密码、显示全部站源」状态。
-  bool get sourceGateOff => _gateOff;
+  /// 站源密码锁已移除：始终处于「不使用密码、显示全部站源」状态。
+  bool get sourceGateOff => true;
 
   void _loadSourceGate() {
     final enabled = _bool('sourceGateEnabled') ?? false;
